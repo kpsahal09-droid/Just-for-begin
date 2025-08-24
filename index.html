@@ -2,37 +2,183 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My GitHub Website</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Arts Fest Team Calling</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #f9d6f3, #d6e4ff);
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #5b2c91;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    h2 {
+      color: #5b2c91;
+    }
+    .team {
+      border: 1px solid #ddd;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    .team p { margin: 5px 0; }
+    button {
+      background: #5b2c91;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+    .round-box {
+      text-align: right;
+      margin-bottom: 1rem;
+    }
+    .login-box {
+      text-align: center;
+    }
+    .login-box input {
+      display: block;
+      margin: 10px auto;
+      padding: 8px;
+      width: 60%;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>🚀 Welcome to My Website</h1>
-    <nav>
-      <a href="#home">Home</a>
-      <a href="#about">About</a>
-      <a href="#contact">Contact</a>
-    </nav>
-  </header>
 
-  <section id="home">
-    <h2>Home</h2>
-    <p>This is a simple website hosted on <b>GitHub Pages</b>. Free, fast, and reliable!</p>
-  </section>
+<header>
+  <h1>🎭 Arts Fest 2025 - Team Calling</h1>
+</header>
 
-  <section id="about">
-    <h2>About Me</h2>
-    <p>Hello! I’m learning how to host websites on GitHub. This is my first project.</p>
-  </section>
+<div class="container" id="loginPage">
+  <h2>Login</h2>
+  <div class="login-box">
+    <input type="text" id="username" placeholder="Username (admin or team name)">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+  </div>
+</div>
 
-  <section id="contact">
-    <h2>Contact</h2>
-    <p>You can reach me at <a href="mailto:example@email.com">example@email.com</a></p>
-  </section>
+<div class="container" id="adminPage" style="display:none;">
+  <div class="round-box">
+    <h2>Current Round: <span id="round">1</span></h2>
+    <button onclick="nextRound()">Next Round ➡️</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+  <div id="teams"></div>
+</div>
 
-  <footer>
-    <p>© 2025 My GitHub Website | Powered by GitHub Pages</p>
-  </footer>
+<div class="container" id="teamPage" style="display:none;">
+  <h2 id="teamHeader"></h2>
+  <p><b>Captain:</b> <span id="teamCaptain"></span></p>
+  <p><b>Contact:</b> <span id="teamContact"></span></p>
+  <p><b>Members:</b> <span id="teamMembers"></span></p>
+  <p><b>Status:</b> <span id="teamStatus"></span></p>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<script>
+  // Demo teams
+  const teams = [
+    {id: 1, name: "Alpha", class: "10A", captain: "Rahul", contact: "9876543210", members: ["Akhil", "Manu"], calledRound: null, password: "alpha123"},
+    {id: 2, name: "Bravo", class: "10B", captain: "Sneha", contact: "9876500000", members: ["Anu", "Kiran"], calledRound: null, password: "bravo123"},
+    {id: 3, name: "Charlie", class: "9C", captain: "Arjun", contact: "9898989898", members: ["Hari", "Meera"], calledRound: null, password: "charlie123"}
+  ];
+
+  let currentRound = 1;
+  let currentUser = null;
+
+  function login() {
+    const user = document.getElementById("username").value.trim();
+    const pass = document.getElementById("password").value.trim();
+
+    if (user === "admin" && pass === "admin123") {
+      currentUser = "admin";
+      document.getElementById("loginPage").style.display = "none";
+      document.getElementById("adminPage").style.display = "block";
+      renderTeams();
+      return;
+    }
+
+    const team = teams.find(t => t.name.toLowerCase() === user.toLowerCase() && t.password === pass);
+    if (team) {
+      currentUser = team;
+      document.getElementById("loginPage").style.display = "none";
+      document.getElementById("teamPage").style.display = "block";
+      renderTeamPage(team);
+      return;
+    }
+
+    alert("Invalid login!");
+  }
+
+  function logout() {
+    currentUser = null;
+    document.getElementById("loginPage").style.display = "block";
+    document.getElementById("adminPage").style.display = "none";
+    document.getElementById("teamPage").style.display = "none";
+  }
+
+  function renderTeams() {
+    const container = document.getElementById("teams");
+    container.innerHTML = "";
+    teams.forEach(team => {
+      const div = document.createElement("div");
+      div.className = "team";
+      div.innerHTML = `
+        <h3>${team.name} (${team.class})</h3>
+        <p><b>Captain:</b> ${team.captain} (${team.contact})</p>
+        <p><b>Members:</b> ${team.members.join(", ")}</p>
+        <p><b>Status:</b> ${team.calledRound === currentRound ? "✅ Called this round" : "❌ Not Called"}</p>
+        <button onclick="callTeam(${team.id})" ${team.calledRound === currentRound ? "disabled" : ""}>Call Team</button>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function renderTeamPage(team) {
+    document.getElementById("teamHeader").textContent = `${team.name} (${team.class})`;
+    document.getElementById("teamCaptain").textContent = team.captain;
+    document.getElementById("teamContact").textContent = team.contact;
+    document.getElementById("teamMembers").textContent = team.members.join(", ");
+    document.getElementById("teamStatus").textContent = team.calledRound === currentRound ? "✅ Called this round" : "❌ Not Called";
+  }
+
+  function callTeam(id) {
+    const team = teams.find(t => t.id === id);
+    if (team) {
+      team.calledRound = currentRound;
+      alert(`${team.name} has been called in Round ${currentRound}`);
+      renderTeams();
+    }
+  }
+
+  function nextRound() {
+    currentRound++;
+    document.getElementById("round").textContent = currentRound;
+    renderTeams();
+    if (currentUser && currentUser !== "admin") renderTeamPage(currentUser);
+  }
+</script>
+
 </body>
 </html>
